@@ -1,61 +1,58 @@
+Edu lab with work Terraform and Packer in infrastructure Yandex Cloud
 
-
-# Preparing for blocked country
+# Preparing 
+## Terraform from blocked country
+setting mirror Yandex for Terraform:
 ```bash
 cp .terraformrc ~
 ```
-
-# Packer: Creating image
-Для работы потребуется установленный и настроенный yc cli ([Как установить yc cli](https://cloud.yandex.com/en/docs/cli/operations/install-cli)). 
-Без него - как-нибудь сами через UI ;)
-
-Переходим в папку
+## Install YC cli 
+[How install](https://cloud.yandex.com/en/docs/cli/operations/install-cli)
 ```bash
-cd packer
+curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
 ```
+# How use
 
+Get available ZONEs - `yc compute zone list`\
+Get available SUBNETs - `yc vpc subnet list`
 
-Устанавливаем переменные для работы пакера
+Set TF and YC env:
 ```bash
 export YC_FOLDER_ID=$(yc config get folder-id)
-export YC_ZONE="<зона_доступности>"
-export YC_SUBNET_ID="<идентификатор_подсети>"
-export YC_TOKEN=$(yc config token)
-
-export YC_TOKEN=$(yc iam create-token)
+# export YC_ZONE="<зона_доступности>" # NOT REQUIRED, AUTO CHOICE
+# export YC_SUBNET_ID="<идентификатор_подсети>" # NOT REQUIRED, AUTO CREATING
+# export YC_TOKEN=$(yc config get token) # NOT USE IT! CREATE IAM IN UR ACCOUNT
+export YC_TOKEN=$(yc iam create-token) # USE IT ONLY!
 export YC_CLOUD_ID=$(yc config get cloud-id)
 export TF_VAR_folder_id=$(yc config get folder-id)
 ```
 
-Получить доступные ZONE - `yc compute zone list`\
-Получить доступные SUBNET - `yc vpc subnet list`
-
-"ru-central1-a"
-"e9bb3mls44fadqh6l9oq"
-
-Билдим Image
+## Packer: Creating image
+Go to Packer folder and Let's go build image
 ```bash
+cd packer
 packer build -var "image_tag=1" nginx.pkr.hcl
 ```
-Примечание: В именах образов в YC можно засунуть только name-1, ни ".", ни "_" недопускаются
+Note: Image's name in YC must be format `name-1123` only, ".", "\_" - not allowed.\
+Name been set in variable `image_name`, but you may override it. \
 
-Проверяем, что image создался
+Check for image created
 ```bash
 yc compute image list
 ```
 
 
-Более детально можно почитать в документации YC
+More details can be found in the YC docs:
 https://cloud.yandex.ru/docs/tutorials/infrastructure-management/packer-custom-image
 
 
 
-# Terraform: apply infrastructure
+## Terraform: apply infrastructure
 Deploy your infrastructure to the Yandex Cloud
 ```bash
 cd ../terraform
 terraform init
-terraform apply -auto-approve
+terraform apply #-auto-approve
 ```
 
 Get loadbalancer ip
@@ -73,8 +70,8 @@ curl $(terraform output -raw loadbalancer_external_ip):443 -i
 
 How get ssh-keys
 ```bash
-terraform output -raw private_ssh_key > some_path/key_name
-chmod 600 key_name
+terraform output -raw private_ssh_key > path/key
+chmod 600 key
 ```
 
 ---
