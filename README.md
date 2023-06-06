@@ -78,7 +78,7 @@ chmod 600 key
 
 Destroy all after testing
 ```bash
-terraform apply #-auto-approve
+terraform destroy -auto-approve
 ```
 
 ---
