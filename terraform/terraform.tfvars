@@ -13,12 +13,12 @@ cidr_blocks = [
 
 resources = {
   disk = 10
-  cpu = 1
-  memory = 2
+  cpu = 2
+  memory = 1
   core_fraction = 20
 }
 
-public_ssh_key_path = ""
+public_ssh_key_path = "~/.ssh/id_rsa.pub"
 private_ssh_key_path = ""
 
 scale_count = 3

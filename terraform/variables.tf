@@ -22,7 +22,7 @@ variable "resources" {
   })
   default = {
     disk          = 10
-    cpu           = 1
+    cpu           = 2
     memory        = 2
     core_fraction = 20
   }

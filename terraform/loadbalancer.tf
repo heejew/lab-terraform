@@ -72,11 +72,16 @@ resource "yandex_alb_load_balancer" "this" {
       discard_percent = 75
     }
   }
+
 }
 
 resource "yandex_alb_http_router" "this" {
   name      = "${local.resource_name}-${var.http_router_name}"
   labels = var.labels
+
+  depends_on = [
+    yandex_compute_instance_group.this
+  ]
 }
 
 resource "yandex_alb_virtual_host" "this" {

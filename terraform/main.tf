@@ -31,6 +31,7 @@ resource "yandex_compute_instance_group" "this" {
     }
 
     metadata = {
+      serial-port-enable = 1
       ssh-keys = var.public_ssh_key_path != "" ? "ubuntu:${file(var.public_ssh_key_path)}" : "yc-user:${tls_private_key.rsa_key[0].public_key_openssh}"
     }
 
