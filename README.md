@@ -4,7 +4,7 @@ Edu lab with work Terraform and Packer in infrastructure Yandex Cloud
 ## Terraform from blocked country
 setting mirror Yandex for Terraform:
 ```bash
-cp .terraformrc ~
+cp terraform/.terraformrc ~
 ```
 ## Install YC cli 
 [How install](https://cloud.yandex.com/en/docs/cli/operations/install-cli)
