@@ -4,7 +4,7 @@ Edu lab with work Terraform and Packer in infrastructure Yandex Cloud
 ## Terraform from blocked country
 setting mirror Yandex for Terraform:
 ```bash
-cp terraform/.terraformrc ~
+cp .terraformrc ~
 ```
 ## Install YC cli 
 [How install](https://cloud.yandex.com/en/docs/cli/operations/install-cli)
@@ -18,13 +18,14 @@ Get available SUBNETs - `yc vpc subnet list`
 
 Set TF and YC env:
 ```bash
+export YC_TOKEN=$(yc iam create-token)          
 export YC_FOLDER_ID=$(yc config get folder-id)
-# export YC_ZONE="<зона_доступности>" # NOT REQUIRED, AUTO CHOICE
-# export YC_SUBNET_ID="<идентификатор_подсети>" # NOT REQUIRED, AUTO CREATING
-# export YC_TOKEN=$(yc config get token) # NOT USE IT! CREATE IAM IN UR ACCOUNT
-export YC_TOKEN=$(yc iam create-token) # USE IT ONLY!
 export YC_CLOUD_ID=$(yc config get cloud-id)
 export TF_VAR_folder_id=$(yc config get folder-id)
+# export YC_ZONE="<зона_доступности>"           # NOT REQUIRED, AUTO CHOICE
+# export YC_SUBNET_ID="<идентификатор_подсети>" # NOT REQUIRED, AUTO CREATING
+# export YC_TOKEN=$(yc config get token)        # NOT USE IT! USE IAM TOKEN
+
 ```
 
 ## Packer: Creating image
@@ -33,7 +34,7 @@ Go to Packer folder and Let's go build image
 cd packer
 packer build -var "image_tag=1" nginx.pkr.hcl
 ```
-Note: Image's name in YC must be format `name-1123` only, ".", "\_" - not allowed.\
+Note: Image's name in YC must be format `name-1123` only, ".", "_" - not allowed.\
 Name been set in variable `image_name`, but you may override it. \
 
 Check for image created
