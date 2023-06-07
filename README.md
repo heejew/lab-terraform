@@ -20,19 +20,21 @@ Set TF and YC env:
 ```bash
 export YC_TOKEN=$(yc iam create-token)
 export YC_FOLDER_ID=$(yc config get folder-id)
+export TF_VAR_folder_id=$(yc config get folder-id)
 
 # export YC_ZONE="<зона_доступности>"                   # NOT REQUIRED, AUTO CHOICE IN PACKER
 # export YC_SUBNET_ID="<идентификатор_подсети>"         # NOT REQUIRED, AUTO CREATING IN PACKER
 # export YC_TOKEN=$(yc config get token)                # NOT USE IT! USE IAM TOKEN
 # export YC_CLOUD_ID=$(yc config get cloud-id)          # FOR TESTING USE
 # export PKR_VAR_folder_id=$(yc config get folder-id)   # FOR TESTING USE
-# export TF_VAR_folder_id=$(yc config get folder-id)    # FOR TESTING USE
+
 ```
 
 ## Packer: Creating image
 Go to Packer folder and Let's go build image
 ```bash
 cd packer
+packer init nginx.pkr.hcl
 packer build -var "image_tag=1" .
 ```
 Note: Image's name in YC must be format `name-1123` only, ".", "_" - not allowed.\
@@ -82,7 +84,6 @@ terraform destroy -auto-approve
 ```
 
 ---
-
 
 
 
