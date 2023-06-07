@@ -6,14 +6,14 @@ resource "yandex_compute_instance_group" "this" {
   name                = "${local.resource_name}-${var.instance_group_name}"
   service_account_id  = yandex_iam_service_account.this.id
   deletion_protection = false
-  labels = var.labels
+  labels              = var.labels
 
   instance_template {
-    platform_id = local.platform_id
-    labels = var.labels
+    platform_id = var.platform_id
+    labels      = var.labels
     resources {
-      memory = var.resources.memory
-      cores  = var.resources.cpu
+      memory        = var.resources.memory
+      cores         = var.resources.cpu
       core_fraction = var.resources.core_fraction
     }
 
@@ -26,13 +26,21 @@ resource "yandex_compute_instance_group" "this" {
 
     }
     network_interface {
-      network_id = yandex_vpc_network.this.id
-      nat = true
+#      network_id = yandex_vpc_network.this.id
+      network_id = module.network_subnets.network
+      nat        = true
+    }
+
+    dynamic "scheduling_policy" {
+      for_each = var.resources.preemptible == true ? [1] : []
+      content {
+        preemptible   = true
+      }
     }
 
     metadata = {
       serial-port-enable = 1
-      ssh-keys = var.public_ssh_key_path != "" ? "ubuntu:${file(var.public_ssh_key_path)}" : "yc-user:${tls_private_key.rsa_key[0].public_key_openssh}"
+      ssh-keys           = var.public_ssh_key_path != "" ? "ubuntu:${file(var.public_ssh_key_path)}" : "yc-user:${tls_private_key.rsa_key[0].public_key_openssh}"
     }
 
     network_settings {
@@ -47,7 +55,7 @@ resource "yandex_compute_instance_group" "this" {
   }
 
   allocation_policy {
-    zones = var.az
+    zones = local.list_az
   }
 
   deploy_policy {
@@ -60,7 +68,9 @@ resource "yandex_compute_instance_group" "this" {
   depends_on = [
     yandex_iam_service_account.this,
     yandex_resourcemanager_folder_iam_binding.this,
-    yandex_vpc_network.this,
-    yandex_vpc_subnet.this
+#    yandex_vpc_network.this,
+#    yandex_vpc_subnet.this
+    module.network_subnets.network,
+    module.network_subnets.subnets
   ]
 }

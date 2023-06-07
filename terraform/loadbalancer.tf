@@ -1,18 +1,18 @@
 resource "yandex_alb_target_group" "this" {
-  name      = "${local.resource_name}-${var.target_group_name}"
+  name   = "${local.resource_name}-${var.target_group_name}"
   labels = var.labels
 
   dynamic "target" {
     for_each = yandex_compute_instance_group.this.instances
     content {
-      subnet_id = target.value.network_interface.0.subnet_id
-      ip_address   = target.value.network_interface.0.ip_address
+      subnet_id  = target.value.network_interface.0.subnet_id
+      ip_address = target.value.network_interface.0.ip_address
     }
   }
 }
 
 resource "yandex_alb_backend_group" "this" {
-  name = "${local.resource_name}-${var.backend_group_name}"
+  name   = "${local.resource_name}-${var.backend_group_name}"
   labels = var.labels
 
   http_backend {
@@ -24,8 +24,8 @@ resource "yandex_alb_backend_group" "this" {
       panic_threshold = 50
     }
     healthcheck {
-      timeout  = "1s"
-      interval = "1s"
+      timeout          = "1s"
+      interval         = "1s"
       healthcheck_port = var.http_backend_port
       http_healthcheck {
         path = "/"
@@ -35,17 +35,19 @@ resource "yandex_alb_backend_group" "this" {
 }
 
 resource "yandex_alb_load_balancer" "this" {
-  name        = "${local.resource_name}-${var.loadbalancer_name}"
+  name   = "${local.resource_name}-${var.loadbalancer_name}"
   labels = var.labels
 
-  network_id  = yandex_vpc_network.this.id
+#  network_id = yandex_vpc_network.this.id
+  network_id = module.network_subnets.network
 
   allocation_policy {
     dynamic "location" {
-      for_each = toset(var.az)
+      for_each = toset(local.list_az)
       content {
         zone_id   = location.value
-        subnet_id = yandex_vpc_subnet.this[location.value].id
+#        subnet_id = yandex_vpc_subnet.this[location.value].id
+        subnet_id = module.network_subnets.subnets[location.value].id
       }
     }
   }
@@ -57,7 +59,7 @@ resource "yandex_alb_load_balancer" "this" {
         external_ipv4_address {
         }
       }
-      ports = [ var.lb_frontend_port ]
+      ports = [var.lb_frontend_port]
     }
     http {
       handler {
@@ -69,14 +71,14 @@ resource "yandex_alb_load_balancer" "this" {
   log_options {
     discard_rule {
       http_code_intervals = ["HTTP_2XX"]
-      discard_percent = 75
+      discard_percent     = 75
     }
   }
 
 }
 
 resource "yandex_alb_http_router" "this" {
-  name      = "${local.resource_name}-${var.http_router_name}"
+  name   = "${local.resource_name}-${var.http_router_name}"
   labels = var.labels
 
   depends_on = [
@@ -85,14 +87,14 @@ resource "yandex_alb_http_router" "this" {
 }
 
 resource "yandex_alb_virtual_host" "this" {
-  name      = "${local.resource_name}-${var.virtual_host_name}"
+  name           = "${local.resource_name}-${var.virtual_host_name}"
   http_router_id = yandex_alb_http_router.this.id
   route {
     name = "my-route"
     http_route {
       http_route_action {
         backend_group_id = yandex_alb_backend_group.this.id
-        timeout = "3s"
+        timeout          = "3s"
       }
     }
   }

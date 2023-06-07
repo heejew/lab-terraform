@@ -1,37 +1,52 @@
-instance_group_name = "nginx-group"
-
 labels = {
   "project" = "slurm"
   "env"     = "lab"
 }
 
-cidr_blocks = [
-  ["172.20.0.0/27"],
-  ["172.21.0.0/27"],
-  ["172.22.0.0/27"],
-]
-
-resources = {
-  disk = 10
-  cpu = 2
-  memory = 1
-  core_fraction = 20
+### NETWORK
+vpc_network_name = "backend-net"
+vps_subnetworks = {
+  "ru-central1-a" : ["172.20.0.0/27"],
+  "ru-central1-b" : ["172.21.0.0/27"],
+  "ru-central1-c" : ["172.22.0.0/27"],
 }
 
-public_ssh_key_path = "~/.ssh/id_rsa.pub"
-private_ssh_key_path = ""
-
+### INSTANCES, GROUPS
+instance_group_name = "nginx-group"
+platform_id = "standard-v2"
+resources = {
+  disk          = 10
+  cpu           = 2
+  memory        = 1
+  core_fraction = 20
+  preemptible   = false
+}
 scale_count = 3
 
+### SSH
+public_ssh_key_path  = "~/.ssh/id_rsa.pub"
+private_ssh_key_path = ""
+
+
+### IMAGE FOR INSTANCES
 image_name = "nginx"
-image_tag = 1
+image_tag  = 1
 
-target_group_name = "nginx-group"
+### LOADBALANCER
+target_group_name  = "nginx-group"
 backend_group_name = "nginx-backend"
-loadbalancer_name = "nginx-loadbalancer"
-http_router_name = "nginx-router"
-virtual_host_name = "nginx-virtual-host"
-lb_frontend_port = 443
-http_backend_port = 80
+loadbalancer_name  = "nginx-loadbalancer"
+http_router_name   = "nginx-router"
+virtual_host_name  = "nginx-virtual-host"
+lb_frontend_port   = 443
+http_backend_port  = 80
 
-vpc_network_name = "backend-net"
+
+
+
+
+#cidr_blocks = [
+#  ["172.20.0.0/27"],
+#  ["172.21.0.0/27"],
+#  ["172.22.0.0/27"],
+#]
